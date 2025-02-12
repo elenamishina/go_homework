@@ -1,4 +1,4 @@
-module github.com/go_homework/hw01_hello_otus
+module github.com/elenamishina/go_homework/hw01_hello_otus
 
 go 1.22
 
