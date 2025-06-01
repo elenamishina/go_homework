@@ -7,7 +7,7 @@ import (
 )
 
 // Change to true if needed.
-var taskWithAsteriskIsCompleted = false
+var taskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -43,9 +43,61 @@ var text = `Как видите, он  спускается  по  лестни�
 	посидеть у огня и послушать какую-нибудь интересную сказку.
 		В этот вечер...`
 
+var smallText = `cat and dog, one dog,two dog...cat cats and one man, dog, Dog!.`
+
+var dashText = `------- - это слово -`
+
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
 		require.Len(t, Top10(""), 0)
+	})
+
+	t.Run("small test", func(t *testing.T) {
+		if taskWithAsteriskIsCompleted {
+			expected := []string{
+				"dog",       // 3
+				"and",       // 2
+				"one",       // 2
+				"cat",       // 1
+				"cats",      // 1
+				"dog,two",   // 1
+				"dog...cat", // 1
+				"man",       // 1
+			}
+			require.Equal(t, expected, Top10(smallText))
+		} else {
+			expected := []string{
+				"and",       // 2
+				"dog,",      // 2
+				"one",       // 2
+				"Dog!.",     // 1
+				"cat",       // 1
+				"cats",      // 1
+				"dog,two",   // 1
+				"dog...cat", // 1
+				"man,",      // 1
+			}
+			require.Equal(t, expected, Top10(smallText))
+		}
+	})
+
+	t.Run("dash test", func(t *testing.T) {
+		if taskWithAsteriskIsCompleted {
+			expected := []string{
+				"-------", // 1
+				"слово",   // 1
+				"это",     // 1
+			}
+			require.Equal(t, expected, Top10(dashText))
+		} else {
+			expected := []string{
+				"-",       // 2
+				"-------", // 1
+				"слово",   // 1
+				"это",     // 1
+			}
+			require.Equal(t, expected, Top10(dashText))
+		}
 	})
 
 	t.Run("positive test", func(t *testing.T) {
