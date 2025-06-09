@@ -1,12 +1,12 @@
 package hw03frequencyanalysis
 
 import (
-	"regexp"
 	"sort"
 	"strings"
+	"unicode"
 )
 
-var punctRegex = regexp.MustCompile(`^\p{P}+|\p{P}+$`)
+const maxResults = 10
 
 func Top10(s string) []string {
 	sSplit := strings.Fields(s)
@@ -15,7 +15,9 @@ func Top10(s string) []string {
 		if str == "-" {
 			continue
 		}
-		newStr := punctRegex.ReplaceAllString(str, "")
+		newStr := strings.TrimFunc(str, func(r rune) bool {
+			return !unicode.IsLetter(r)
+		})
 		if newStr != "" {
 			newStrLower := strings.ToLower(newStr)
 			numStr[newStrLower]++
@@ -29,15 +31,15 @@ func Top10(s string) []string {
 		words = append(words, k)
 	}
 	sort.Slice(words, func(i, j int) bool {
-		if numStr[words[i]] != numStr[words[j]] {
-			return numStr[words[i]] > numStr[words[j]]
+		a, b := words[i], words[j]
+		if numStr[a] == numStr[b] {
+			return a < b
 		}
-		return words[i] < words[j]
+		return numStr[a] > numStr[b]
 	})
 
-	num := 10
-	if len(words) < num {
-		num = len(words)
+	if len(words) > maxResults {
+		return words[:maxResults]
 	}
-	return words[:num]
+	return words
 }

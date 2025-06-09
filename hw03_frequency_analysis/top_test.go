@@ -47,6 +47,8 @@ var smallText = `cat and dog, one dog,two dog...cat cats and one man, dog, Dog!.
 
 var dashText = `------- - это слово -`
 
+var checkText = "dog,two dog...cat dog-cat dogcat"
+
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
 		require.Len(t, Top10(""), 0)
@@ -130,5 +132,14 @@ func TestTop10(t *testing.T) {
 			}
 			require.Equal(t, expected, Top10(text))
 		}
+	})
+	t.Run("positive test", func(t *testing.T) {
+		expected := []string{
+			"dog,two",   // 1
+			"dog-cat",   // 1
+			"dog...cat", // 1
+			"dogcat",    // 1
+		}
+		require.Equal(t, expected, Top10(checkText))
 	})
 }
