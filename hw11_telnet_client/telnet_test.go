@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"net"
 	"sync"
@@ -13,7 +14,8 @@ import (
 
 func TestTelnetClient(t *testing.T) {
 	t.Run("basic", func(t *testing.T) {
-		l, err := net.Listen("tcp", "127.0.0.1:")
+		config := &net.ListenConfig{}
+		l, err := config.Listen(context.Background(), "tcp", "127.0.0.1:")
 		require.NoError(t, err)
 		defer func() { require.NoError(t, l.Close()) }()
 
@@ -61,5 +63,40 @@ func TestTelnetClient(t *testing.T) {
 		}()
 
 		wg.Wait()
+	})
+	t.Run("check close", func(t *testing.T) {
+		config := &net.ListenConfig{}
+		l, err := config.Listen(context.Background(), "tcp", "127.0.0.1:")
+		require.NoError(t, err)
+		defer func() { require.NoError(t, l.Close()) }()
+
+		go func() {
+			conn, err := l.Accept()
+			require.NoError(t, err)
+			defer conn.Close()
+		}()
+
+		in := &bytes.Buffer{}
+		out := &bytes.Buffer{}
+
+		client := NewTelnetClient(l.Addr().String(), time.Second, io.NopCloser(in), out)
+		require.NoError(t, client.Connect())
+
+		require.NoError(t, client.Close())
+
+		err = client.Send()
+		require.Error(t, err, "Send() after Close()")
+
+		err = client.Receive()
+		require.Error(t, err, "Receive() after Close()")
+	})
+
+	t.Run("invalid connect", func(t *testing.T) {
+		in := &bytes.Buffer{}
+		out := &bytes.Buffer{}
+
+		client := NewTelnetClient("127.0.0.1:8888", time.Second, io.NopCloser(in), out)
+		err := client.Connect()
+		require.Error(t, err, "Connect() to invalid address")
 	})
 }
