@@ -1,0 +1,108 @@
+1. Стартовые значения
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 553.880462ms / 300ms
+    stats_optimization_test.go:47: memory used: 308Mb / 30Mb
+    assertion_compare.go:332: 
+                Error Trace:    stats_optimization_test.go:49
+                Error:          "553880462" is not less than "300000000"
+                Test:           TestGetDomainStat_Time_And_Memory
+                Messages:       [the program is too slow]
+--- FAIL: TestGetDomainStat_Time_And_Memory (16.14s)
+FAIL
+FAIL    github.com/fixme_my_friend/hw10_program_optimization    16.148s
+FAIL
+
+2. Обернула все внутренние функции таймерами, чтобы понять что сколько исполняется,
+в функции getUsers долго делается Unmarshal и регулка, кроме этого выделается фиксированный массив, заменила на слайс, ничего не поменялось
+
+3. Заметила, что используется readAll, который читает весь большой файл, заменила на bufio, уменьшилось потребление памяти
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 528.302838ms / 300ms
+    stats_optimization_test.go:47: memory used: 226Mb / 30Mb
+    assertion_compare.go:332: 
+                Error Trace:    stats_optimization_test.go:49
+                Error:          "528302838" is not less than "300000000"
+                Test:           TestGetDomainStat_Time_And_Memory
+                Messages:       [the program is too slow]
+--- FAIL: TestGetDomainStat_Time_And_Memory (15.19s)
+FAIL
+FAIL    github.com/fixme_my_friend/hw10_program_optimization    15.194s
+FAIL
+
+4. В следующей функции есть в цикле создание []byte, у regexp можно сразу MatchString вызвать
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 555.953293ms / 300ms
+    stats_optimization_test.go:47: memory used: 223Mb / 30Mb
+    assertion_compare.go:332: 
+                Error Trace:    stats_optimization_test.go:49
+                Error:          "555953293" is not less than "300000000"
+                Test:           TestGetDomainStat_Time_And_Memory
+                Messages:       [the program is too slow]
+--- FAIL: TestGetDomainStat_Time_And_Memory (15.20s)
+FAIL
+FAIL    github.com/fixme_my_friend/hw10_program_optimization    15.203s
+FAIL
+
+5. Еще неправильно в цикле компилировать регулярку, вытащила из цикла, сразу лучше стало
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 370.535016ms / 300ms
+    stats_optimization_test.go:47: memory used: 94Mb / 30Mb
+    assertion_compare.go:332: 
+                Error Trace:    stats_optimization_test.go:49
+                Error:          "370535016" is not less than "300000000"
+                Test:           TestGetDomainStat_Time_And_Memory
+                Messages:       [the program is too slow]
+--- FAIL: TestGetDomainStat_Time_And_Memory (7.69s)
+FAIL
+FAIL    github.com/fixme_my_friend/hw10_program_optimization    7.698s
+FAIL
+
+6. Дальше бросается два раза ToLower и SplitN, сделать один раз, но изменений нет
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 362.195664ms / 300ms
+    stats_optimization_test.go:47: memory used: 93Mb / 30Mb
+    assertion_compare.go:332: 
+                Error Trace:    stats_optimization_test.go:49
+                Error:          "362195664" is not less than "300000000"
+                Test:           TestGetDomainStat_Time_And_Memory
+                Messages:       [the program is too slow]
+--- FAIL: TestGetDomainStat_Time_And_Memory (6.98s)
+FAIL
+FAIL    github.com/fixme_my_friend/hw10_program_optimization    6.988s
+FAIL
+
+7. По памяти еще []User создается, можно без него обойтись, оставила одну функцию и один цикл, потребление уменьшилось
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 446.585735ms / 300ms
+    stats_optimization_test.go:47: memory used: 42Mb / 30Mb
+    assertion_compare.go:332: 
+                Error Trace:    stats_optimization_test.go:49
+                Error:          "446585735" is not less than "300000000"
+                Test:           TestGetDomainStat_Time_And_Memory
+                Messages:       [the program is too slow]
+--- FAIL: TestGetDomainStat_Time_And_Memory (6.66s)
+FAIL
+FAIL    github.com/fixme_my_friend/hw10_program_optimization    6.660s
+FAIL
+
+8. Регулярка очень простая, можно на что-то заменить, убрала регулярку, сразу время уменьшилось
+ === RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 328.519752ms / 300ms
+    stats_optimization_test.go:47: memory used: 42Mb / 30Mb
+    assertion_compare.go:332: 
+                Error Trace:    stats_optimization_test.go:49
+                Error:          "328519752" is not less than "300000000"
+                Test:           TestGetDomainStat_Time_And_Memory
+                Messages:       [the program is too slow]
+--- FAIL: TestGetDomainStat_Time_And_Memory (6.46s)
+FAIL
+FAIL    github.com/fixme_my_friend/hw10_program_optimization    6.461s
+FAIL
+
+9. Попробовала заменить encoding/json на json "github.com/goccy/go-json", тесты прошли
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 139.254214ms / 300ms
+    stats_optimization_test.go:47: memory used: 28Mb / 30Mb
+--- PASS: TestGetDomainStat_Time_And_Memory (1.59s)
+PASS
+ok      github.com/fixme_my_friend/hw10_program_optimization    1.595s
