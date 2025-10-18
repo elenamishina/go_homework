@@ -1,4 +1,4 @@
-module github.com/elenamishina/hw10_program_optimization
+module github.com/elenamishina/go_homework/hw10_program_optimization
 
 go 1.22
 
